@@ -1,0 +1,29 @@
+﻿<Properties StartupConfiguration="{D99A15F2-46E0-E13A-9EDC-8D3514BF2B50}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/ScoreDisplay.cs">
+    <Files>
+      <File FileName="Assets/Scripts/ScoreDisplay.cs" Line="45" Column="14" />
+      <File FileName="Assets/Editor/ScoreDisplayTest.cs" Line="118" Column="52" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="BowlMaster" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Editor" expanded="True" />
+              <Node name="Scripts" expanded="True">
+                <Node name="ScoreDisplay.cs" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="3d15c42c-54bc-439c-ace7-0f23cbf54df6" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

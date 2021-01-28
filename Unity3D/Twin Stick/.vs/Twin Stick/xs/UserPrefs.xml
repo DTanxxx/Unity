@@ -1,0 +1,37 @@
+﻿<Properties StartupConfiguration="{ABBF0826-89B8-D185-4000-B05DD2508027}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Camera/SelfieStick.cs">
+    <Files>
+      <File FileName="Assets/Camera/CameraPan.cs" Line="13" Column="1" />
+      <File FileName="Assets/Camera/SelfieStick.cs" Line="21" Column="22" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Twin Stick" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Camera" expanded="True">
+                <Node name="SelfieStick.cs" selected="True" />
+              </Node>
+              <Node name="Game" expanded="True" />
+              <Node name="Player" expanded="True" />
+              <Node name="Standard Assets" expanded="True">
+                <Node name="Characters" expanded="True">
+                  <Node name="RollerBall" expanded="True">
+                    <Node name="Scripts" expanded="True" />
+                  </Node>
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="18913eea-5e85-4a7d-9622-b72f5fd6ecbf" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
