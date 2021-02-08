@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using RPG.Movement;
-using RPG.Combat;
-using RPG.Resources;
+using RPG.Attributes;
 using UnityEngine.EventSystems;
 using System;
+using UnityEngine.AI;
 
 namespace RPG.Control
 {
@@ -20,6 +20,8 @@ namespace RPG.Control
         }
 
         [SerializeField] CursorMapping[] cursorMappings = null;
+        [SerializeField] float maxNavMeshProjectionDistance = 1.0f;
+        [SerializeField] float maxNavPathLength = 15.0f;
 
         private void Awake()
         {
@@ -81,22 +83,24 @@ namespace RPG.Control
             // create a ray with origin at the position of mouse click on the 2D screen,
             // and direction, from origin of camera to the location of mouse click on the 2D screen,
             // so that when we extend the direction vector, it will reach the same point on the 3D terrain
-            Ray ray = GetMouseRay();
+            //Ray ray = GetMouseRay();
 
-            RaycastHit hit;
+            //RaycastHit hit;
+            Vector3 target;
 
             // we pass in 'ray' and 'hit'
             // the 'out' keyword means that the method will take in 'hit' variable and change it inside the method,
             // so that after the method completes, our 'hit' variable will contain some data (in this
             // case, where the ray has hit the terrain)
-            bool hasHit = Physics.Raycast(ray, out hit);
+            //bool hasHit = Physics.Raycast(ray, out hit);
+            bool hasHit = RaycastNavMesh(out target);
 
             // if hasHit is true, ie the ray has hit something, move player to that hit location
             if (hasHit)
             {
                 if (Input.GetMouseButton(0))
                 {
-                    GetComponent<Mover>().StartMoveAction(hit.point, 1f);
+                    GetComponent<Mover>().StartMoveAction(target, 1f);
                 }
                 SetCursor(CursorType.Movement);
                 return true;
@@ -105,6 +109,48 @@ namespace RPG.Control
 
             // draw the ray, extending its direction (which is a unit length Vector3) by a factor of 100
             //Debug.DrawRay(lastRay.origin, lastRay.direction * 100);
+        }
+
+        // check if the mouse ray hits anywhere on the NavMesh
+        private bool RaycastNavMesh(out Vector3 target)
+        {
+            target = new Vector3();
+            RaycastHit hit;
+
+            // raycast to terrain
+            bool hasHit = Physics.Raycast(GetMouseRay(), out hit);
+            if (!hasHit) return false;
+
+            // find nearest NavMesh point
+            NavMeshHit navMeshHit;
+            bool hasCastToNavMesh = NavMesh.SamplePosition(
+                hit.point, out navMeshHit, maxNavMeshProjectionDistance, NavMesh.AllAreas);
+            if (!hasCastToNavMesh) return false;
+
+            target = navMeshHit.position;
+
+            // make sure navMeshHit.position is not too far away from player location
+            NavMeshPath path = new NavMeshPath();
+            bool hasPath = NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
+            if (!hasPath) return false;
+            if (path.status != NavMeshPathStatus.PathComplete) return false;  // make sure the destination's NavMesh is connected to player position's NavMesh
+            if (GetPathLength(path) > maxNavPathLength) return false;
+
+            // return true if so
+            return true;
+        }
+
+        private float GetPathLength(NavMeshPath path)
+        {
+            float total = 0f;
+            if (path.corners.Length < 2) return total;
+            
+            for (int i = 0; i < path.corners.Length - 1; i++)
+            {
+                total += Vector3.Distance(path.corners[i], path.corners[i + 1]);
+            }
+
+            return total;
         }
 
         private void SetCursor(CursorType type)

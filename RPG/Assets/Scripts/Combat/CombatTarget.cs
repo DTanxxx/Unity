@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using RPG.Resources;
+using RPG.Attributes;
 using RPG.Control;
 
 namespace RPG.Combat
@@ -14,7 +14,7 @@ namespace RPG.Combat
                 return false;
             }
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButton(0))
             {
                 // attack this combat target
                 callingController.GetComponent<Fighter>().Attack(gameObject);
