@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.AI;
 using RPG.Control;
-using RPG.Core;
-using RPG.Saving;
 
 namespace RPG.SceneManagement
 {
@@ -43,13 +39,21 @@ namespace RPG.SceneManagement
             DontDestroyOnLoad(gameObject);
 
             Fader fader = FindObjectOfType<Fader>();
-            SavingWrapper savingWrapper = FindObjectOfType<SavingWrapper>();           
+            SavingWrapper savingWrapper = FindObjectOfType<SavingWrapper>();
+
+            // remove player (from original scene) control 
+            PlayerController playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            playerController.enabled = false;
 
             yield return fader.FadeOut(fadeOutDuration);
-
+            
             savingWrapper.Save();
 
             yield return SceneManager.LoadSceneAsync(sceneToLoad);
+
+            // remove player (from new scene) control
+            PlayerController newPlayerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            newPlayerController.enabled = false;
 
             savingWrapper.Load();
 
@@ -59,11 +63,14 @@ namespace RPG.SceneManagement
             savingWrapper.Save();
 
             yield return new WaitForSeconds(fadeWaitDuration);
-            yield return fader.FadeIn(fadeInDuration);
+            fader.FadeIn(fadeInDuration);
+
+            // restore player control
+            newPlayerController.enabled = true;
 
             Destroy(gameObject);
         }
-
+        
         private Portal GetOtherPortal()
         {
             Portal[] portals = FindObjectsOfType<Portal>();

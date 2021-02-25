@@ -6,19 +6,17 @@ namespace RPG.Attributes
     {
         [SerializeField] Health healthComponent = null;
         [SerializeField] RectTransform foreground = null;
-        [SerializeField] Canvas canvas = null;
+        [SerializeField] Canvas rootCanvas = null;
 
         void Update()
         {
-            if (healthComponent.GetFraction() == 1f || healthComponent.GetFraction() <= 0f)
+            if (Mathf.Approximately(healthComponent.GetFraction(), 0f) || Mathf.Approximately(healthComponent.GetFraction(), 1f))
             {
-                canvas.enabled = false;
-            }
-            else
-            {
-                canvas.enabled = true;
+                rootCanvas.enabled = false;
+                return;
             }
 
+            rootCanvas.enabled = true;
             foreground.localScale = new Vector3(healthComponent.GetFraction(), 1f, 1f);        
         }
     }
