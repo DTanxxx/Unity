@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using RPG.Saving;
+using GameDevTV.Saving;
 
 namespace RPG.SceneManagement
 {
@@ -30,7 +30,7 @@ namespace RPG.SceneManagement
             }
             if (Input.GetKeyDown(KeyCode.L))
             {
-                Load();
+                LoadScene();
             }
             if (Input.GetKeyDown(KeyCode.D))
             {
@@ -46,6 +46,11 @@ namespace RPG.SceneManagement
         public void Load()
         {
             GetComponent<SavingSystem>().Load(defaultSaveFile);
+        }
+
+        public void LoadScene()
+        {
+            StartCoroutine(GetComponent<SavingSystem>().LoadLastScene(defaultSaveFile));
         }
 
         public void Delete()

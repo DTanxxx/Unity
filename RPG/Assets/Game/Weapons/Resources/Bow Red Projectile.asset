@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 299080dfefc3445d8996fbd1fea5c1c4, type: 3}
   m_Name: Bow Red Projectile
   m_EditorClassIdentifier: 
+  itemID: 8bda2bfe-6f7b-4d15-b8eb-3990465fdf00
+  displayName: 
+  description: 
+  icon: {fileID: 21300000, guid: 5ddf9f0620390bf4db1980ca2abb5df4, type: 3}
+  pickup: {fileID: 8417125906495422096, guid: 97118cf6665724a0e8c351bedcd2441f, type: 3}
+  stackable: 0
+  allowedEquipLocation: 5
   animatorOverride: {fileID: 22100000, guid: 81f63d9b167d0478785751e2347f2010, type: 2}
   equippedPrefab: {fileID: 3004976820904351850, guid: 7224fe0807d164dc8b25f5ffe99e9302,
     type: 3}

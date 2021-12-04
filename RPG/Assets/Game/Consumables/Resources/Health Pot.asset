@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c655f7644e347745804b4553a21d00f, type: 3}
+  m_Name: Health Pot
+  m_EditorClassIdentifier: 
+  itemID: 46e9d941-1674-499f-ad4a-c6dae9814284
+  displayName: Health Pot
+  description: Restores 50 Health Points
+  icon: {fileID: 21300000, guid: f1dd815974b2d4240a6bc912d6585497, type: 3}
+  pickup: {fileID: 168473003535775858, guid: c4bdbc7995516c849ab93b715d5a2c10, type: 3}
+  stackable: 1
+  consumable: 1
+  healthToRestore: 20

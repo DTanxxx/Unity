@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using RPG.Saving;
+using GameDevTV.Saving;
 using RPG.Stats;
 using RPG.Core;
 using GameDevTV.Utils;
@@ -87,6 +87,7 @@ namespace RPG.Attributes
 
         public float GetHealthPoints()
         {
+            healthPoints.value = Mathf.Min(healthPoints.value, GetMaxHealthPoints());
             return healthPoints.value;
         }
 

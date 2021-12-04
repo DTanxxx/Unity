@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   saveKey: 115
   loadKey: 108
-  deleteKey: 127
+  deleteKey: 100
 --- !u!114 &3860198578962578749
 MonoBehaviour:
   m_ObjectHideFlags: 0
