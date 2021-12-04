@@ -1,0 +1,5 @@
+sceneSetups:
+- path: Assets/Chapter 01/Scenes/Chapter 1 - Starting Point.unity
+  isLoaded: 1
+  isActive: 1
+  isSubScene: 0

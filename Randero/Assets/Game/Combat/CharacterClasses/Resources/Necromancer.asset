@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00c8263a0573f0a419a3cf42d888ccc4, type: 3}
+  m_Name: Necromancer
+  m_EditorClassIdentifier: 
+  abilities:
+  - {fileID: 11400000, guid: 10fb8efec407a6e4f922671c3b7d0fa5, type: 2}
+  - {fileID: 11400000, guid: a82febd4036f8c048a5ad6e9a182582c, type: 2}
+  - {fileID: 11400000, guid: 475c3276d6d3f7a40b335ed514ecf74c, type: 2}
+  characterSprite: {fileID: 21300108, guid: b08e570699f1c8a4f9cc388204aef3bc, type: 3}

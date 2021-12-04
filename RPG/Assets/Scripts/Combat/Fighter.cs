@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
 using RPG.Movement;
 using RPG.Core;
-using RPG.Saving;
+using GameDevTV.Saving;
 using RPG.Attributes;
 using RPG.Stats;
 using System.Collections.Generic;
 using GameDevTV.Utils;
 using UnityEngine.Events;
+using GameDevTV.Inventories;
 
 namespace RPG.Combat
 {
-    public class Fighter : MonoBehaviour, IAction, ISaveable, IModifierProvider
+    public class Fighter : MonoBehaviour, IAction, ISaveable //, IModifierProvider
     {        
         [SerializeField] float timeBetweenAttacks = 1f;       
         [SerializeField] Transform rightHandTransform = null;
@@ -18,6 +19,7 @@ namespace RPG.Combat
         [SerializeField] WeaponConfig defaultWeapon = null;
 
         Health target;
+        Equipment equipment;
         float timeSinceLastAttack = Mathf.Infinity;
         WeaponConfig currentWeaponConfig;
         LazyValue<Weapon> currentWeapon;
@@ -26,6 +28,12 @@ namespace RPG.Combat
         {
             currentWeaponConfig = defaultWeapon;
             currentWeapon = new LazyValue<Weapon>(SetupDefaultWeapon);
+
+            equipment = GetComponent<Equipment>();
+            if (equipment)
+            {
+                equipment.equipmentUpdated += UpdateWeapon;
+            }
         }
 
         private Weapon SetupDefaultWeapon()
@@ -68,6 +76,19 @@ namespace RPG.Combat
         {
             Animator animator = GetComponent<Animator>();
             return weapon.Spawn(rightHandTransform, leftHandTransform, animator);
+        }
+
+        private void UpdateWeapon()
+        {
+            EquipableItem weapon = equipment.GetItemInSlot(EquipLocation.Weapon);
+            if (weapon != null)
+            {
+                EquipWeapon(weapon as WeaponConfig);
+            }
+            else
+            {
+                EquipWeapon(defaultWeapon);
+            }
         }
 
         public Health GetTarget()
@@ -157,7 +178,19 @@ namespace RPG.Combat
             return (targetToTest != null) && (!targetToTest.IsDead());
         }
 
-        public IEnumerable<float> GetAdditiveModifiers(Stat stat)
+        public object CaptureState()
+        {
+            return currentWeaponConfig.name;
+        }
+
+        public void RestoreState(object state)
+        {
+            string weaponName = (string)state;
+            WeaponConfig weapon = UnityEngine.Resources.Load<WeaponConfig>(weaponName);
+            EquipWeapon(weapon);
+        }
+
+        /*public IEnumerable<float> GetAdditiveModifiers(Stat stat)
         {
             if (stat == Stat.Damage)
             {
@@ -171,18 +204,6 @@ namespace RPG.Combat
             {
                 yield return currentWeaponConfig.GetPercentageBonus();
             }
-        }
-
-        public object CaptureState()
-        {
-            return currentWeaponConfig.name;
-        }
-
-        public void RestoreState(object state)
-        {
-            string weaponName = (string)state;
-            WeaponConfig weapon = UnityEngine.Resources.Load<WeaponConfig>(weaponName);
-            EquipWeapon(weapon);
-        }
+        }*/
     }
 }

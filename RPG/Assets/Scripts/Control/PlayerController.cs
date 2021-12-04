@@ -4,6 +4,7 @@ using RPG.Attributes;
 using UnityEngine.EventSystems;
 using System;
 using UnityEngine.AI;
+using GameDevTV.Inventories;
 
 namespace RPG.Control
 {
@@ -23,6 +24,9 @@ namespace RPG.Control
         [SerializeField] float maxNavMeshProjectionDistance = 1.0f;
         [SerializeField] float raycastRadius = 1f;
 
+        bool movementStarted = false;  // used for preventing player movement when clicking on pickup
+        bool isDraggingUI = false;  // used for preventing player movement when dragging UI
+
         private void Awake()
         {
             health = GetComponent<Health>();
@@ -30,6 +34,12 @@ namespace RPG.Control
 
         void Update()
         {
+            CheckSpecialAbilityKeys();
+            if (Input.GetMouseButtonUp(0))
+            {
+                movementStarted = false;
+            }
+
             if (InteractWithUI()) return;
             if (health.IsDead())
             {
@@ -43,12 +53,57 @@ namespace RPG.Control
             SetCursor(CursorType.None);
         }
 
+        private void CheckSpecialAbilityKeys()
+        {
+            ActionStore actionStore = GetComponent<ActionStore>();
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                actionStore.Use(0, gameObject);
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                actionStore.Use(1, gameObject);
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                actionStore.Use(2, gameObject);
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                actionStore.Use(3, gameObject);
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha5))
+            {
+                actionStore.Use(4, gameObject);
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha6))
+            {
+                actionStore.Use(5, gameObject);
+            }
+        }
+
         private bool InteractWithUI()
         {
+            if (Input.GetMouseButtonUp(0))
+            {
+                isDraggingUI = false;
+            }
+
             // check if the cursor is hovered over an UI component on screen
             if (EventSystem.current.IsPointerOverGameObject())
             {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    isDraggingUI = true;
+                }
                 SetCursor(CursorType.UI);
+                return true;
+            }
+            
+            // if still dragging UI, then don't interact with other things eg movement
+            if (isDraggingUI)
+            {
                 return true;
             }
             return false;
@@ -100,7 +155,12 @@ namespace RPG.Control
             {
                 if (!GetComponent<Mover>().CanMoveTo(target)) return false;
 
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButtonDown(0))
+                {
+                    movementStarted = true;
+                }
+                
+                if (Input.GetMouseButton(0) && movementStarted)
                 {
                     GetComponent<Mover>().StartMoveAction(target, 1f);
                 }
