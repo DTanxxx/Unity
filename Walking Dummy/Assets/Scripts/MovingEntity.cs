@@ -60,8 +60,6 @@ public class MovingEntity : MonoBehaviour
             sideVector = new Vector3(headingVector.z, 0, -headingVector.x);
             // update player's rotation too
             transform.rotation = Quaternion.LookRotation(headingVector);
-            Debug.Log("Heading vector: " + headingVector);
-            Debug.Log("Side vector: " + sideVector);
         }
     }
 

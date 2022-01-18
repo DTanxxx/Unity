@@ -35,16 +35,20 @@ public class SteeringBehaviours : MonoBehaviour
     [SerializeField] private float wanderJitterFactor = 2.0f;  // maximum amount of random displacement for the point on wander circle
     [SerializeField] private float wanderJitterRange = 3.0f;
     [SerializeField] private float wanderSpeedFactor = 0.5f;
-    [Header("Obstacle Detection Box Length")]
+    [Header("Obstacle Detection Attributes")]
     [SerializeField] private float obstacleDetectionBoxLength = 5.0f;
+    [SerializeField] private LayerMask obstacleLayerMask;
 
     private MovingEntity entity = null;
     private EvaderController evader = null;
     private Vector3 targetPosition = Vector3.negativeInfinity;
     private Vector3 radius = Vector3.zero;
 
+    private CapsuleCollider capsuleCollider = null;
+
     private void Start()
     {
+        capsuleCollider = GetComponent<CapsuleCollider>();
         entity = GetComponent<MovingEntity>();
         var randomHorizontalLength = Random.Range(0, wanderRadius);
         var randomVerticalLength = Mathf.Sqrt(wanderRadius * wanderRadius - randomHorizontalLength * randomHorizontalLength);
@@ -150,6 +154,9 @@ public class SteeringBehaviours : MonoBehaviour
 
             Vector3 desiredVelocity = toTarget * speed / dist;
 
+            // TO BE DELETED
+            FindObstructingObstacles();
+
             return desiredVelocity - entity.GetVelocity();
         }
 
@@ -218,32 +225,113 @@ public class SteeringBehaviours : MonoBehaviour
         //Use the OverlapBox to detect if there are any other colliders within this box area.
         //Use the GameObject's centre, half the size (as a radius) and rotation. This creates an invisible box around your GameObject.
         Vector3 headingVector = entity.GetHeadingVector().normalized;
-        Collider[] hitColliders = Physics.OverlapBox(transform.position + 
-            headingVector * obstacleDetectionBoxLength / 2 * entity.GetVelocity().magnitude / entity.GetMaxSpeed() - 
-            headingVector * GetComponent<CapsuleCollider>().radius, 
-            obstacleDetectionBoxLength / 2, transform.rotation, m_LayerMask);
-
-        // TODO we want to update player's rotation in MovingEntity, using its headingVector DONE
-        // TODO we want to create an obstacle layermask
-
-
+        var pos = transform.position + headingVector * obstacleDetectionBoxLength/2*entity.GetVelocity().magnitude/
+            entity.GetMaxSpeed() - headingVector*capsuleCollider.radius;
+        var size = new Vector3(capsuleCollider.radius, capsuleCollider.height / 2, obstacleDetectionBoxLength / 2 * entity.GetVelocity().magnitude/entity.GetMaxSpeed());
+        Collider[] hitColliders = Physics.OverlapBox(pos, size, transform.rotation, obstacleLayerMask);
         int i = 0;
+        GameObject closestIntersectingObstacle = null;
+        float distanceToClosestIntersectingObstacle = float.MaxValue;
+        Vector3 localPosOfClosestObstacle = Vector3.zero;
         //Check when there is a new collider coming into contact with the box
         while (i < hitColliders.Length)
         {
             //Output all of the collider names
-            Debug.Log("Hit : " + hitColliders[i].name + i);
-            //Increase the number of Colliders in the array
+            var obs = hitColliders[i];
+            Debug.Log("Hit : " + obs.name);
+            // Calculate this obstacle's position in local space
+            var localPos = transform.InverseTransformPoint(obs.transform.position);
+            Debug.Log("Local Pos: " + localPos + " for obstacle: " + obs.name);
+            // We only want to deal with obstacles in front of the player
+            if (localPos.z >= 0)
+            {
+                Debug.Log("Obstacle in front!");
+                // If the distance from the z axis to the obstacle's position is less than its radius + half 
+                // of the width of the detection box then there is an intersection
+                float maxOfXAndZScale = Mathf.Max(hitColliders[i].transform.localScale.x / 2, hitColliders[i].transform.localScale.z / 2);
+                float expandedRadius = maxOfXAndZScale + capsuleCollider.radius;
+                if (Mathf.Abs(localPos.x) < expandedRadius)
+                {
+                    Debug.Log("Intersect!");
+                    // Intersection!
+                    // Do a line/circle intersection test.
+                    // The centre of the circle is represented by (cZ, cX). The intersection points are given 
+                    // by the formula z = cZ +/-sqrt(r^{2}-cX^{2}) for x=0.
+                    // We only need to look at the smallest positive value of z because that will be the closest point of intersection
+                    float cZ = localPos.z;
+                    float cX = localPos.x;
+                    float sqrtPart = Mathf.Sqrt(expandedRadius * expandedRadius - cX * cX);
+                    float intersectionPoint = cZ - sqrtPart;
+
+                    // If this intersection point is behind vehicle then take the other intersection point in the front
+                    // If not, this intersection point is already the closest in front of the vehicle
+                    if (intersectionPoint <= 0)
+                    {
+                        intersectionPoint = cZ + sqrtPart;
+                    }
+                    // Test to see if this is the closest so far. If it is, keep a record of the obstacle and its local coordinates
+                    if (intersectionPoint < distanceToClosestIntersectingObstacle)
+                    {
+                        distanceToClosestIntersectingObstacle = intersectionPoint;
+                        closestIntersectingObstacle = hitColliders[i].gameObject;
+                        localPosOfClosestObstacle = localPos;
+                    }
+                }
+            }
             i++;
         }
+        if (closestIntersectingObstacle != null)
+        {
+            Debug.Log(closestIntersectingObstacle.name + " at " + localPosOfClosestObstacle.ToString() + " is the closest so far");
+            // Found a closest intersection obstacle!
+            // Calculate a force away from it
+            Vector3 steeringForce = Vector3.zero;
+
+            // The closer the obstacle the strong the steering force
+            float multiplier = 1.0f + (obstacleDetectionBoxLength - localPosOfClosestObstacle.z) / obstacleDetectionBoxLength;
+            // Calculate the lateral force
+            //Debug.Log(closestIntersectingObstacle.transform.localScale.x / 2 + capsuleCollider.radius >= Mathf.Abs(localPosOfClosestObstacle.x));
+            if (localPosOfClosestObstacle.x >= 0)
+            {
+                // Force is downwards!
+                Debug.Log("Downwards force!");
+                steeringForce.x = -(closestIntersectingObstacle.transform.localScale.x / 2 
+                    + capsuleCollider.radius
+                    - Mathf.Abs(localPosOfClosestObstacle.x)) * multiplier;
+            }
+            else
+            {
+                Debug.Log("Upwards force!");
+                steeringForce.x = (closestIntersectingObstacle.transform.localScale.x / 2
+                    + capsuleCollider.radius
+                    - Mathf.Abs(localPosOfClosestObstacle.x)) * multiplier;
+            }
+
+            // Apply a braking force proportional to the obstacle's distance from the vehicle
+            float brakingWeight = 0.2f;
+
+        }
+        
+
 
         return null;
     }
 
     void OnDrawGizmos()
     {
+        if (entity == null) { return; }
+        Vector3 headingVector = entity.GetHeadingVector().normalized;
         Gizmos.color = Color.red;
+        Matrix4x4 prevMatrix = Gizmos.matrix;
+        Gizmos.matrix = transform.localToWorldMatrix;
+        var pos = transform.position + headingVector * obstacleDetectionBoxLength / 2 *
+            entity.GetVelocity().magnitude / entity.GetMaxSpeed() - headingVector *
+            capsuleCollider.radius;
+        pos = transform.InverseTransformPoint(pos);
+        var size = new Vector3(capsuleCollider.radius * 2, capsuleCollider.height, obstacleDetectionBoxLength
+            * entity.GetVelocity().magnitude/entity.GetMaxSpeed());
         //Draw a cube where the OverlapBox is (positioned where your GameObject is as well as a size)
-        Gizmos.DrawWireCube(transform.position, transform.localScale);
+        Gizmos.DrawWireCube(pos, size);
+        Gizmos.matrix = prevMatrix;
     }
 }
